@@ -1,1 +1,25 @@
-I have 1E (hex) apples.
+1E (hex)
+1010 (bin)
+1E (hex) 1010 (bin)
+1010 (bin) 1E (hex)
+1E (hex) (bin)
+1010 (bin) (hex)
+1E (hex) (hex)
+1010 (bin) (bin)
+1E (hex) (hex) (bin)
+1010 (bin) (bin) (hex)
+1E (hex) 2A (hex) FF (hex)
+1010 (bin) 1011 (bin) 1100 (bin)
+1E (hex) 1010 (bin) 2A (hex) 1011 (bin)
+(hex) hello
+(bin) hello
+(hex) (bin) hello
+(bin) (hex) hello
+hello (hex)
+hello (bin)
+hello (hex) (bin)
+hello (bin) (hex)
+1E (hex) hello (bin) 1010 (bin)
+hello (hex) 1010 (bin) world
+1E (hex) (bin) 2A (hex) (bin)
+1010 (bin) (hex) 1011 (bin)

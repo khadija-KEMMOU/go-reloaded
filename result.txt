@@ -1,1 +1,25 @@
-I have 1E (hex) apples.
+30
+10
+30 10
+10 30
+30
+10
+30
+10
+30
+10
+30 42 255
+10 11 12
+30 10 42 11
+hello
+hello
+hello
+hello
+hello
+hello
+hello
+hello
+30 hello 10
+hello 10 world
+30 42
+10 11
