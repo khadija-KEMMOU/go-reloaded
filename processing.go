@@ -5,8 +5,20 @@ import (
 	"strconv"
 )
 
-func processConversion(words []string, converted []bool, j int, convert func(string) (int, error)) {
+func processConversion(words []string, converted []bool, j int, convert func(string) (int, error)) ([]string, []bool, int) {
+	if j > 0 && !converted[j-1] {
+		number := words[j-1]
+		result, err := convert(number)
 
+		if err == nil {
+			words[j-1] = strconv.Itoa(result)
+			converted[j-1] = true
+		}
+	}
+	words = append(words[:j], words[j+1:]...)
+	converted = append(converted[:j], converted[j+1:]...)
+	j--
+	return words, converted, j
 }
 
 func processText(sample string) string {
@@ -21,34 +33,14 @@ func processText(sample string) string {
 		//looking for the hex to convert
 		for j := 0; j < len(words); j++ {
 
-			//looking specifically for hex to convert
-			if words[j] == "(hex)" {
-				if j > 0 && !converted[j-1] {
-					hexNumber := words[j-1]
-					result, err := hexToDecimal(hexNumber)
-					
-					if err == nil {
-						words[j-1] = strconv.Itoa(result)
-						converted[j-1] = true
-					}
-				}
-				words = append(words[:j], words[j+1:]...)
-				converted = append(converted[:j], converted[j+1:]...)
-				j--
-			} else if words[j] == "(bin)" {   //looking specificaly for bin to convert
-				if j > 0 && !converted[j-1] {
-					binNumber := words[j-1]
-					result, err := binToDecimal(binNumber)
-
-					if err == nil {
-						words[j-1] = strconv.Itoa(result)
-						converted[j-1] = true
-					}
-				}
-				words = append(words[:j], words[j+1:]...)
-				converted = append(converted[:j], converted[j+1:]...)
-				j--
+			//the conversion part
+			switch words[j] {
+			case "(hex)" :
+				words, converted, j = processConversion(words, converted, j, hexToDecimal)
+			case "(bin)" :
+				words, converted, j = processConversion(words, converted, j, binToDecimal)
 			}
+			
 		}
 		lines[i] = strings.Join(words, " ")
 	}
