@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"fmt"
+	"os"
 )
 
 func main() {
@@ -27,5 +27,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("The answer have been written in the file result.txt successfully!")
+	fmt.Println("The answer has been written in the file result.txt successfully!")
 }
