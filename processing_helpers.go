@@ -55,10 +55,10 @@ func processTransformWithNbr(words []string, j int, transform func(string) strin
 
 //handles punctuation except the quotes ""
 func processPunctuation(words []string) []string {
+		parts := []string{}
 	for i := 0; i < len(words); i++ {
 		current := ""
 		punctuation := ""
-		parts := []string{}
 		inPunctuation := false
 		for _, char := range words[i] {
 			if isPunctuationChar(char) {
@@ -77,12 +77,23 @@ func processPunctuation(words []string) []string {
 				current += string(char)
 			}
 		}
+		if punctuation != "" {
+			parts = append(parts, punctuation)
+		}
+		if current != "" {
+			parts = append(parts, current)
+		}
+	}
+	words = parts
+	
+	for i := 0; i < len(words); i++ {
 		if i > 0 && isPunctuation(words[i]) {
 			words[i-1] = words[i-1] + words[i]
 			words = append(words[:i], words[i+1:]...)
 			i--
 		}
 	}
+
 	return words
 }
 
