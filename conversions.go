@@ -57,13 +57,18 @@ func isPunctuation(word string) bool {
 }
 
 // tells if its a quote
-func isQuote(words string, i int) bool {
+func isQuote(words string, i int) string {
+	if words == "'" {
+		return "single"
+	}
 	if words[i] == '\'' {
-		if i == 0 || i == len(words)-1 {
-			return true
+		if i == 0 {
+			return "opening"
+		} else if i == len(words)-1 {
+			return "closing"
 		} else {
-			return false
+			return "none"
 		}
 	}
-	return false
+	return "none"
 }

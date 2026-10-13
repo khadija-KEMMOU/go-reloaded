@@ -104,43 +104,43 @@ func processQuotes(words []string) []string {
 	for i := 0; i < len(words); i++ {
 		handled := false
 		for j := 0; j < len(words[i]); j++ {
-			if isQuote(words[i], j) {
-				// handles the single quotes
-				if words[i] == "'" {
-					if inQuote == false {
-						inQuote = true
-						if i+1 < len(words) {
-							parts = append(parts, "'" + words[i+1])
-							i++
-							handled = true
-						}
-					} else {
-						inQuote = false
-						parts[len(parts)-1] += "'"
+			switch isQuote(words[i], j) {
+			// Handle standalone quotes
+			case "single":
+				if !inQuote {
+					inQuote = true
+					if i+1 < len(words) {
+						parts = append(parts, "'"+words[i+1])
+						i++
+						handled = true
 					}
-				// handles quotes attached to words
 				} else {
-					if j == 0 && !inQuote {
-						inQuote = true
-					} else if j == 0 && inQuote {
-						parts[len(parts)-1] +="'"
-						parts = append(parts, words[i][1:])
-						handled = true
-						inQuote = false
-						break
+					inQuote = false
+					parts[len(parts)-1] += "'"
+				}
+			// Handle opening quotes
+			case "opening":
+				if !inQuote {
+					inQuote = true
+				} else {
+					parts[len(parts)-1] += "'"
+					parts = append(parts, words[i][1:])
+					handled = true
+				}
+			// Handle closing quotes
+			case "closing":
+				if inQuote {
+					parts = append(parts, words[i])
+					inQuote = false
+					handled = true
+				} else {
+					parts = append(parts, words[i][:len(words[i])-1])
+					if i+1 < len(words) {
+						parts = append(parts, "'"+words[i+1])
+						i++
 					}
-
-					if j == len(words[i])-1 && !inQuote {
-						parts = append(parts, words[i][:j])
-						handled = true
-						inQuote = true
-						if i+1 < len(words) {
-							parts = append(parts, "'"+words[i+1])
-							i++
-							break
-						}
-					}
-					
+					inQuote = true
+					handled = true
 				}
 			}
 		}
