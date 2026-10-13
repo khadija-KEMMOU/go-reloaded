@@ -1,4 +1,7 @@
 opening 'hello world' closing
-opening 'hello world 'closing
 opening 'hello world' closing
-opening 'hello world 'closing
+opening 'hello world' closing
+opening 'hello world' closing
+opening 'hello world' closing
+
+i don't like this quote : 'we have a bigger fish to fry ... no wait' i do like it' bye

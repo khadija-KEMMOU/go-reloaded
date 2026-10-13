@@ -120,6 +120,16 @@ func processQuotes(words []string) []string {
 					}
 				// handles quotes attached to words
 				} else {
+					if j == 0 && !inQuote {
+						inQuote = true
+					} else if j == 0 && inQuote {
+						parts[len(parts)-1] +="'"
+						parts = append(parts, words[i][1:])
+						handled = true
+						inQuote = false
+						break
+					}
+
 					if j == len(words[i])-1 && !inQuote {
 						parts = append(parts, words[i][:j])
 						handled = true
@@ -130,13 +140,7 @@ func processQuotes(words []string) []string {
 							break
 						}
 					}
-					if j == 0 && inQuote {
-						parts[len(parts)-1] +="'"
-						parts = append(parts, words[i][1:])
-						handled = true
-						inQuote = false
-						break
-					}
+					
 				}
 			}
 		}
