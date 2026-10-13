@@ -55,7 +55,7 @@ func processTransformWithNbr(words []string, j int, transform func(string) strin
 
 //handles punctuation except the quotes ""
 func processPunctuation(words []string) []string {
-		parts := []string{}
+	parts := []string{}
 	for i := 0; i < len(words); i++ {
 		current := ""
 		punctuation := ""
@@ -97,3 +97,52 @@ func processPunctuation(words []string) []string {
 	return words
 }
 
+// handles the quotes
+func processQuotes(words []string) []string {
+	parts := []string{}
+	inQuote := false
+	for i := 0; i < len(words); i++ {
+		handled := false
+		for j := 0; j < len(words[i]); j++ {
+			if isQuote(words[i], j) {
+				// handles the single quotes
+				if words[i] == "'" {
+					if inQuote == false {
+						inQuote = true
+						if i+1 < len(words) {
+							parts = append(parts, "'" + words[i+1])
+							i++
+							handled = true
+						}
+					} else {
+						inQuote = false
+						parts[len(parts)-1] += "'"
+					}
+				// handles quotes attached to words
+				} else {
+					if j == len(words[i])-1 && !inQuote {
+						parts = append(parts, words[i][:j])
+						handled = true
+						inQuote = true
+						if i+1 < len(words) {
+							parts = append(parts, "'"+words[i+1])
+							i++
+							break
+						}
+					}
+					if j == 0 && inQuote {
+						parts[len(parts)-1] +="'"
+						parts = append(parts, words[i][1:])
+						handled = true
+						inQuote = false
+						break
+					}
+				}
+			}
+		}
+		if !handled && words[i] != "'" {
+			parts = append(parts, words[i])
+		}
+	}
+	return parts
+}

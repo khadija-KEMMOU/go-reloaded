@@ -37,6 +37,7 @@ func processText(sample string) string {
 
 		}
 		words = processPunctuation(words)
+		words = processQuotes(words)
 		lines[i] = strings.Join(words, " ")
 	}
 	return strings.Join(lines, "\n")

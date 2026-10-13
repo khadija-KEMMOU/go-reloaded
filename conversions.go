@@ -55,3 +55,15 @@ func isPunctuation(word string) bool {
 	}
 	return true
 }
+
+// tells if its a quote
+func isQuote(words string, i int) bool {
+	if words[i] == '\'' {
+		if i == 0 || i == len(words)-1 {
+			return true
+		} else {
+			return false
+		}
+	}
+	return false
+}
