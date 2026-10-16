@@ -33,9 +33,10 @@ func capital(cap string) string {
 		return cap
 	}
 	cap = strings.ToLower(cap)
-	first := strings.ToUpper(cap[0:1])
-	rest := cap[1:]
-	result := first + rest
+	letters := []rune(cap)
+	first := strings.ToUpper(string(letters[0:1]))
+	rest := letters[1:]
+	result := string(first) + string(rest)
 	return result
 }
 
@@ -56,19 +57,13 @@ func isPunctuation(word string) bool {
 	return true
 }
 
-// tells if its a quote
-func isQuote(words string, i int) string {
-	if words == "'" {
-		return "single"
+// specifies if a word starts with a vowel
+func startWithVowel(word string) bool {
+	if word == "" {
+		return false
 	}
-	if words[i] == '\'' {
-		if i == 0 {
-			return "opening"
-		} else if i == len(words)-1 {
-			return "closing"
-		} else {
-			return "none"
-		}
+	if word[0] == 'a' || word[0] == 'e' || word[0] == 'i' || word[0] == 'o' || word[0] == 'u' || word[0] == 'h' || word[0] == 'A' || word[0] == 'E' || word[0] == 'I' || word[0] == 'O' || word[0] == 'U' || word[0] == 'H' {
+		return true
 	}
-	return "none"
+	return false
 }

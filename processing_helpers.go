@@ -63,7 +63,9 @@ func processPunctuation(words []string) []string {
 		for _, char := range words[i] {
 			if isPunctuationChar(char) {
 				if !inPunctuation {
-					parts = append(parts, current)
+					if current != "" {
+						parts = append(parts, current)
+					}
 					current = ""
 					inPunctuation = true
 				}
@@ -84,8 +86,9 @@ func processPunctuation(words []string) []string {
 			parts = append(parts, current)
 		}
 	}
+
 	words = parts
-	
+
 	for i := 0; i < len(words); i++ {
 		if i > 0 && isPunctuation(words[i]) {
 			words[i-1] = words[i-1] + words[i]
@@ -101,52 +104,79 @@ func processPunctuation(words []string) []string {
 func processQuotes(words []string) []string {
 	parts := []string{}
 	inQuote := false
+	prefix := "" // opening quote(s) waiting to be glued to the next word
+
+	// handles ONE quote mark
+	mark := func(forceClose bool) {
+		if !inQuote && !forceClose {
+			// opening quote: wait for the next word
+			prefix += "'"
+			inQuote = true
+			return
+		}
+		// closing quote
+		inQuote = false
+		if prefix != "" {
+			// nothing between the quotes: keep them together as ''
+			parts = append(parts, prefix+"'")
+			prefix = ""
+		} else if len(parts) > 0 {
+			// glue to the end of the previous word
+			parts[len(parts)-1] += "'"
+		} else {
+			parts = append(parts, "'")
+		}
+	}
+
+	for _, word := range words {
+		core := strings.Trim(word, "'")
+
+		// the word is only quotes, like "'"
+		if core == "" {
+			for range word {
+				mark(false)
+			}
+			continue
+		}
+
+		lead := len(word) - len(strings.TrimLeft(word, "'"))
+		trail := len(word) - len(strings.TrimRight(word, "'"))
+
+		// quotes at the start of the word
+		for k := 0; k < lead; k++ {
+			// a quote followed only by punctuation ('.) must be a closing one
+			mark(!inQuote && isPunctuation(core) && len(parts) > 0)
+		}
+
+		parts = append(parts, prefix+core)
+		prefix = ""
+
+		// quotes at the end of the word
+		for k := 0; k < trail; k++ {
+			mark(false)
+		}
+	}
+
+	// an opening quote with nothing after it
+	if prefix != "" {
+		parts = append(parts, prefix)
+	}
+	return parts
+}
+
+// processes the a and an article
+func processArticle(words []string) []string {
 	for i := 0; i < len(words); i++ {
-		handled := false
-		for j := 0; j < len(words[i]); j++ {
-			switch isQuote(words[i], j) {
-			// Handle standalone quotes
-			case "single":
-				if !inQuote {
-					inQuote = true
-					if i+1 < len(words) {
-						parts = append(parts, "'"+words[i+1])
-						i++
-						handled = true
-					}
-				} else {
-					inQuote = false
-					parts[len(parts)-1] += "'"
-				}
-			// Handle opening quotes
-			case "opening":
-				if !inQuote {
-					inQuote = true
-				} else {
-					parts[len(parts)-1] += "'"
-					parts = append(parts, words[i][1:])
-					handled = true
-				}
-			// Handle closing quotes
-			case "closing":
-				if inQuote {
-					parts = append(parts, words[i])
-					inQuote = false
-					handled = true
-				} else {
-					parts = append(parts, words[i][:len(words[i])-1])
-					if i+1 < len(words) {
-						parts = append(parts, "'"+words[i+1])
-						i++
-					}
-					inQuote = true
-					handled = true
+		if (words[i] == "a" || words[i] == "A") && i+1 < len(words) {
+			if startWithVowel(words[i+1]) {
+				switch words[i] {
+				case "a":
+					words[i] = "an"
+				case "A":
+					words[i] = "An"
 				}
 			}
 		}
-		if !handled && words[i] != "'" {
-			parts = append(parts, words[i])
-		}
 	}
-	return parts
+	return words
 }
