@@ -104,7 +104,7 @@ func processPunctuation(words []string) []string {
 
 	words = parts
 
-	// this loop glue the punctuations to the word before it
+	// this loop glues the punctuations to the word before it
 	for i := 0; i < len(words); i++ {
 		if i > 0 && isPunctuation(words[i]) {
 			words[i-1] = words[i-1] + words[i]
@@ -122,9 +122,9 @@ func processQuotes(words []string) []string {
 	inQuote := false
 	prefix := "" // opening quote(s) waiting to be glued to the next word
 
-	// handles ONE quote mark
-	mark := func(forceClose bool) {
-		if !inQuote && !forceClose {
+	// handles ONE quote mark: the first opens, the next one closes, and so on
+	mark := func() {
+		if !inQuote {
 			// opening quote: wait for the next word
 			prefix += "'"
 			inQuote = true
@@ -140,6 +140,7 @@ func processQuotes(words []string) []string {
 			// glue to the end of the previous word
 			parts[len(parts)-1] += "'"
 		} else {
+			// if parts is empty
 			parts = append(parts, "'")
 		}
 	}
@@ -150,7 +151,7 @@ func processQuotes(words []string) []string {
 		// the word is only quotes, like "'"
 		if core == "" {
 			for range word {
-				mark(false)
+				mark()
 			}
 			continue
 		}
@@ -160,8 +161,7 @@ func processQuotes(words []string) []string {
 
 		// quotes at the start of the word
 		for k := 0; k < lead; k++ {
-			// a quote followed only by punctuation ('.) must be a closing one
-			mark(!inQuote && isPunctuation(core) && len(parts) > 0)
+			mark()
 		}
 
 		parts = append(parts, prefix+core)
@@ -169,7 +169,7 @@ func processQuotes(words []string) []string {
 
 		// quotes at the end of the word
 		for k := 0; k < trail; k++ {
-			mark(false)
+			mark()
 		}
 	}
 

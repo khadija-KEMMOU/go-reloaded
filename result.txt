@@ -1,0 +1,14 @@
+'i said' '. hello' world
+
+That's not how'quotes'work but'let's'see
+(up, 9999) will this try to modify more words than exist?
+178956970 very long binary
+an e i o u h An E I O U H testing 'a' vs 'an'
+'' 'empty quotes
+'multiple' 'wor'ds' in quotes '.
+(cap, 2) at the end OF A SENTENCE. at the start of a sentence.
+This is SO EXCITING!
+Multiple. Sentences. With. Weird. Spacing.
+This text has (imaginary) modifiers (hello) (WORLD)
+'"Don't outcome it it's an aaa a à éé é àà larm' '
+'' '
