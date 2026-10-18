@@ -70,6 +70,7 @@ func splitCommandPunctuation(words []string) []string {
 // handles punctuation except the quotes ""
 func processPunctuation(words []string) []string {
 	parts := []string{}
+	// this loop seperate the words and punctuation each alone
 	for i := 0; i < len(words); i++ {
 		current := ""
 		punctuation := ""
@@ -103,6 +104,7 @@ func processPunctuation(words []string) []string {
 
 	words = parts
 
+	// this loop glue the punctuations to the word before it
 	for i := 0; i < len(words); i++ {
 		if i > 0 && isPunctuation(words[i]) {
 			words[i-1] = words[i-1] + words[i]
