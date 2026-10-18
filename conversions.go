@@ -1,20 +1,28 @@
 package main
 
 import (
-	"strconv"
+	"errors"
+	"math/big"
 	"strings"
 )
 
 // converts hexadecimals to decimals
-func hexToDecimal(hex string) (int, error) {
-	number, err := strconv.ParseInt(hex, 16, 64)
-	return int(number), err
+func hexToDecimal(hex string) (string, error) {
+	return baseToDecimal(hex, 16)
 }
 
 // converts binary to decimals
-func binToDecimal(bin string) (int, error) {
-	number, err := strconv.ParseInt(bin, 2, 64)
-	return int(number), err
+func binToDecimal(bin string) (string, error) {
+	return baseToDecimal(bin, 2)
+}
+
+// converts a number written in the given base to a decimal string
+func baseToDecimal(number string, base int) (string, error) {
+	result, ok := new(big.Int).SetString(number, base)
+	if !ok {
+		return "", errors.New("invalid number")
+	}
+	return result.String(), nil
 }
 
 // transforms lowercase to uppercase

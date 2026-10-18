@@ -6,13 +6,13 @@ import (
 )
 
 // handles only hex and bin functions
-func processConversion(words []string, j int, convert func(string) (int, error)) ([]string, int) {
+func processConversion(words []string, j int, convert func(string) (string, error)) ([]string, int) {
 	if j > 0 {
 		number := words[j-1]
 		result, err := convert(number)
 
 		if err == nil {
-			words[j-1] = strconv.Itoa(result)
+			words[j-1] = result
 			// to eliminate the command between (...)
 			words = append(words[:j], words[j+1:]...)
 			j--
@@ -42,7 +42,7 @@ func processTransformWithNbr(words []string, j int, transform func(string) strin
 	number := strings.TrimSuffix(words[j+1], ")")
 	n, err := strconv.Atoi(number)
 	if err == nil {
-		for i := j-1; i >= 0 && n > 0; i-- {
+		for i := j - 1; i >= 0 && n > 0; i-- {
 			words[i] = transform(words[i])
 			n--
 		}
@@ -53,7 +53,21 @@ func processTransformWithNbr(words []string, j int, transform func(string) strin
 	return words, j
 }
 
-//handles punctuation except the quotes ""
+// separates the punctuation stuck after a ")": "(up)," becomes "(up)" and ","
+func splitCommandPunctuation(words []string) []string {
+	result := []string{}
+	for _, word := range words {
+		end := strings.LastIndex(word, ")")
+		if end != -1 && end < len(word)-1 && isPunctuation(word[end+1:]) {
+			result = append(result, word[:end+1], word[end+1:])
+		} else {
+			result = append(result, word)
+		}
+	}
+	return result
+}
+
+// handles punctuation except the quotes ""
 func processPunctuation(words []string) []string {
 	parts := []string{}
 	for i := 0; i < len(words); i++ {
