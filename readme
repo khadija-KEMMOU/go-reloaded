@@ -1,0 +1,57 @@
+# go-reloaded
+
+A text editing and auto-correction tool written in Go, using only the standard library.
+
+## Usage
+
+    go run . input.txt output.txt
+
+The program reads `input.txt`, applies the modifications described below, and writes the result to `output.txt`.
+
+Safety checks before writing: the output file must end with `.txt`, and it must not be the same file as the input. This prevents the program from overwriting source files.
+
+## Project structure
+
+| File | Role |
+|---|---|
+| `main.go` | reads the arguments, checks the paths, reads and writes the files |
+| `processing.go` | `processText`: runs the whole pipeline line by line |
+| `processing_helpers.go` | the functions that perform each modification |
+| `conversions.go` | small helpers: base conversion, case changes, character checks |
+| `seperators.go` | the functions that seperates the commands and punctuations each alone |
+
+## How it works
+
+The text is split into lines, and each line is split into words. Each line goes through the same pipeline, in this order:
+
+1. **Separate the commands.** `splitCommands` cuts commands out of words they are stuck to (`hello(up),` becomes `hello`, `(up)`, `,`). `splitAfterNumber` does the same for what follows the number in `(up, 2)k`.
+2. **Apply the commands.** A `switch` goes through the words and runs `(hex)`, `(bin)`, `(up)`, `(low)`, `(cap)` and their `(..., N)` forms on the previous word(s). The command is removed from the text once applied.
+3. **Quotes.** `splitQuotes` separates every `'` stuck to the start or end of a word, so each quote becomes its own item. `processQuotes` then pairs them in order of appearance: the first opens and sticks to the next word, the second closes and sticks to the previous word, and so on. A `'` inside a word (`don't`) is an apostrophe and is never touched.
+4. **Punctuation.** `processPunctuation` first cuts every word so punctuation is separate from letters, then glues each punctuation group to the previous word. Groups like `...` or `!?` stay together. The space after the punctuation comes from joining the words with single spaces.
+5. **Articles.** `processArticle` turns `a` into `an` (and `A` into `An`) when the next word starts with a vowel or `h`.
+6. The words are joined back into a line, and the lines are joined back into the text.
+
+## Main functions
+
+- `processConversion`: replaces the previous word by its decimal value for `(hex)` and `(bin)`. It uses `math/big`, so numbers of any size work. If the word is not a valid number, the text stays unchanged.
+- `processTransformation`: applies `(up)`, `(low)` or `(cap)` to the previous word.
+- `processTransformWithNbr`: applies `(up, N)`, `(low, N)` or `(cap, N)` to the previous N words.
+- `splitQuotes` / `processQuotes`: separate, then pair the quotes.
+- `processPunctuation`: separate, then glue the punctuation.
+- `processArticle`: `a` to `an`.
+
+## Design choices
+
+- **Only the forms in the subject are recognized.** A malformed command (`(up 2)`, `(uup)`) is not handled and stays in the text as it is. The program never crashes on it.
+- **A command that cannot be applied stays in the text.** For example `(up)` at the start of a line has no previous word, and `102 (bin)` is not a valid binary number.
+- **A count of zero or less** (`(up, 0)`) changes nothing, and the command is removed.
+- **Each line is processed separately**, so a command only affects words on its own line.
+- **Quotes are paired in order**, as the subject says they always come in pairs. With an odd number of quotes, none is lost.
+- **Commands are counted before punctuation is separated**, so a standalone `,` or `'` counts as a word in `(up, N)`.
+- **Punctuation follows the subject literally**, so a number such as `3.14` becomes `3. 14`.
+
+## Testing
+
+    go test ./...
+
+The tests use the examples from the subject.

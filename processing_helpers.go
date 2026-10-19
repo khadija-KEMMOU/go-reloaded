@@ -53,20 +53,6 @@ func processTransformWithNbr(words []string, j int, transform func(string) strin
 	return words, j
 }
 
-// separates the punctuation stuck after a ")": "(up)," becomes "(up)" and ","
-func splitCommandPunctuation(words []string) []string {
-	result := []string{}
-	for _, word := range words {
-		end := strings.LastIndex(word, ")")
-		if end != -1 && end < len(word)-1 && isPunctuation(word[end+1:]) {
-			result = append(result, word[:end+1], word[end+1:])
-		} else {
-			result = append(result, word)
-		}
-	}
-	return result
-}
-
 // handles punctuation except the quotes ""
 func processPunctuation(words []string) []string {
 	parts := []string{}
@@ -116,66 +102,41 @@ func processPunctuation(words []string) []string {
 	return words
 }
 
-// handles the quotes
+// glues each lone quote: the 1st sticks to the next word, the 2nd to the previous one
 func processQuotes(words []string) []string {
+	words = splitQuotes(words)
 	parts := []string{}
 	inQuote := false
-	prefix := "" // opening quote(s) waiting to be glued to the next word
 
-	// handles ONE quote mark: the first opens, the next one closes, and so on
-	mark := func() {
-		if !inQuote {
-			// opening quote: wait for the next word
-			prefix += "'"
-			inQuote = true
-			return
-		}
-		// closing quote
-		inQuote = false
-		if prefix != "" {
-			// nothing between the quotes: keep them together as ''
-			parts = append(parts, prefix+"'")
-			prefix = ""
-		} else if len(parts) > 0 {
-			// glue to the end of the previous word
-			parts[len(parts)-1] += "'"
-		} else {
-			// if parts is empty
-			parts = append(parts, "'")
-		}
-	}
-
-	for _, word := range words {
-		core := strings.Trim(word, "'")
-
-		// the word is only quotes, like "'"
-		if core == "" {
-			for range word {
-				mark()
-			}
+	for i := 0; i < len(words); i++ {
+		if words[i] != "'" {
+			parts = append(parts, words[i])
 			continue
 		}
 
-		lead := len(word) - len(strings.TrimLeft(word, "'"))
-		trail := len(word) - len(strings.TrimRight(word, "'"))
-
-		// quotes at the start of the word
-		for k := 0; k < lead; k++ {
-			mark()
+		if !inQuote {
+			// opening quote: glue it to the next word
+			inQuote = true
+			if i+1 >= len(words) {
+				parts = append(parts, "'")
+			} else if words[i+1] == "'" {
+				// closes right away: empty quotes
+				parts = append(parts, "''")
+				inQuote = false
+				i++
+			} else {
+				parts = append(parts, "'"+words[i+1])
+				i++
+			}
+		} else {
+			// closing quote: glue it to the previous word
+			inQuote = false
+			if len(parts) > 0 {
+				parts[len(parts)-1] += "'"
+			} else {
+				parts = append(parts, "'")
+			}
 		}
-
-		parts = append(parts, prefix+core)
-		prefix = ""
-
-		// quotes at the end of the word
-		for k := 0; k < trail; k++ {
-			mark()
-		}
-	}
-
-	// an opening quote with nothing after it
-	if prefix != "" {
-		parts = append(parts, prefix)
 	}
 	return parts
 }

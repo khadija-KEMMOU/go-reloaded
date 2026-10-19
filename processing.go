@@ -13,6 +13,10 @@ func processText(sample string) string {
 		// seperating words
 		words := strings.Fields(lines[i])
 		words = splitCommandPunctuation(words)
+		words = splitQuotes(words)
+		words = splitCommands(words)
+		words = splitAfterNumber(words)
+		words = splitCommandPunctuation(words)
 
 		for j := 0; j < len(words); j++ {
 			// the conversion part
@@ -35,10 +39,9 @@ func processText(sample string) string {
 				words, j = processTransformWithNbr(words, j, capital)
 			}
 		}
+
 		words = processQuotes(words)
-
 		words = processPunctuation(words)
-
 		words = processArticle(words)
 		lines[i] = strings.Join(words, " ")
 	}
