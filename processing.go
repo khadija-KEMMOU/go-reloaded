@@ -40,8 +40,8 @@ func processText(sample string) string {
 			}
 		}
 
-		words = processQuotes(words)
 		words = processPunctuation(words)
+		words = processQuotes(words)
 		words = processArticle(words)
 		lines[i] = strings.Join(words, " ")
 	}
